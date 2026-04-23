@@ -1,0 +1,4477 @@
+{
+  "info": {
+    "_postman_id": "cc3469b1-b44e-4ffa-b211-be009138cbda",
+    "name": "SummonMind API - FINAL (Auth + RBAC COMPLETE)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "48317594",
+    "_collection_link": "https://go.postman.co/collection/48317594-cc3469b1-b44e-4ffa-b211-be009138cbda?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth & Users",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"client\",\n  \"password\": \"123456\",\n  \"email\": \"client@example.com\",\n  \"phone\": \"+919876543210\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login (Auto Save Tokens)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const r = pm.response.json();",
+                  "pm.collectionVariables.set('access_token', r.access_token);",
+                  "pm.collectionVariables.set('refresh_token', r.refresh_token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"username\": \"admin\", \"password\": \"123456\" }"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+  "name": "Forgot Password - Request OTP",
+  "request": {
+    "method": "POST",
+    "header": [
+      { "key": "Content-Type", "value": "application/json" }
+    ],
+    "body": {
+      "mode": "raw",
+      "raw": "{ \"login_id\": \"admin\" }"
+    },
+    "url": {
+      "raw": "{{base_url}}/auth/password/request-otp",
+      "host": ["{{base_url}}"],
+      "path": ["auth", "password", "request-otp"]
+    }
+  },
+  "response": []
+},
+{
+  "name": "Forgot Password - Verify OTP (Save Reset Token)",
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "exec": [
+          "const r = pm.response.json();",
+          "pm.collectionVariables.set('reset_token', r.reset_token);"
+        ],
+        "type": "text/javascript"
+      }
+    }
+  ],
+  "request": {
+    "method": "POST",
+    "header": [
+      { "key": "Content-Type", "value": "application/json" }
+    ],
+    "body": {
+      "mode": "raw",
+      "raw": "{ \"login_id\": \"admin\", \"otp\": \"123456\" }"
+    },
+    "url": {
+      "raw": "{{base_url}}/auth/password/verify-otp",
+      "host": ["{{base_url}}"],
+      "path": ["auth", "password", "verify-otp"]
+    }
+  },
+  "response": []
+},
+{
+  "name": "Forgot Password - Reset Password",
+  "request": {
+    "method": "POST",
+    "header": [
+      { "key": "Content-Type", "value": "application/json" }
+    ],
+    "body": {
+      "mode": "raw",
+      "raw": "{ \"reset_token\": \"{{reset_token}}\", \"new_password\": \"NewPass@123\" }"
+    },
+    "url": {
+      "raw": "{{base_url}}/auth/password/reset-password",
+      "host": ["{{base_url}}"],
+      "path": ["auth", "password", "reset-password"]
+    }
+  },
+  "response": []
+},
+
+
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "RBAC Users List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Only Route",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/admin-delete",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "admin-delete"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Check Permission (Frontend Helper)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/check-permission?module=user&action=view",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "check-permission"
+              ],
+              "query": [
+                {
+                  "key": "module",
+                  "value": "user"
+                },
+                {
+                  "key": "action",
+                  "value": "view"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/refresh?refresh_token={{refresh_token}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ],
+              "query": [
+                {
+                  "key": "refresh_token",
+                  "value": "{{refresh_token}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout?refresh_token={{refresh_token}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ],
+              "query": [
+                {
+                  "key": "refresh_token",
+                  "value": "{{refresh_token}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Manage Users",
+      "item": [
+        {
+          "name": "Create User (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"username\": \"user1\", \"password\": \"123456\", \"role_id\": 2 }"
+            },
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Create User (Role Selectable)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"username\": \"manager1\", \"password\": \"123456\", \"role_id\": 2 }"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/admin-create",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "admin-create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users?page=1&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User By ID (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update User (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"first_name\": \"John\", \"last_name\": \"Doe\", \"status\": 1 }"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle User Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/1/toggle-status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "1",
+                "toggle-status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset User Password (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"password\": \"NewStrongPass123\" }"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/1/reset-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "1",
+                "reset-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Modules",
+      "item": [
+        {
+          "name": "Create Module",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"title\": \"User Management\", \"status\": 1 }"
+            },
+            "url": {
+              "raw": "{{base_url}}/modules",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "modules"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Modules",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/modules",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "modules"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Module By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/modules/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "modules",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Module",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"title\": \"Employee Management\", \"status\": 1 }"
+            },
+            "url": {
+              "raw": "{{base_url}}/modules/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "modules",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Module Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/modules/1/toggle-status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "modules",
+                "1",
+                "toggle-status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Module",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/modules/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "modules",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Actions",
+      "item": [
+        {
+          "name": "Create Action",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"title\": \"Create\", \"status\": 1 }"
+            },
+            "url": {
+              "raw": "{{base_url}}/actions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "actions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Actions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/actions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "actions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Action By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/actions/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "actions",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Action",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"title\": \"Update\", \"status\": 1 }"
+            },
+            "url": {
+              "raw": "{{base_url}}/actions/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "actions",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Action Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/actions/1/toggle-status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "actions",
+                "1",
+                "toggle-status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Action",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/actions/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "actions",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Permissions",
+      "item": [
+        {
+          "name": "Create Permission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"module_id\": 1, \"action_id\": 1, \"status\": 1 }"
+            },
+            "url": {
+              "raw": "{{base_url}}/permissions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "permissions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Permissions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/permissions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "permissions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Permission By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/permissions/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "permissions",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Permission",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"status\": 0 }"
+            },
+            "url": {
+              "raw": "{{base_url}}/permissions/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "permissions",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Permission Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/permissions/1/toggle-status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "permissions",
+                "1",
+                "toggle-status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Permission",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/permissions/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "permissions",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Roles",
+      "item": [
+        {
+          "name": "Create Role",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"name\": \"Super Admin\", \"status\": 1 }"
+            },
+            "url": {
+              "raw": "{{base_url}}/roles",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "roles"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Roles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/roles",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "roles"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Role By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/roles/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "roles",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Role",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"name\": \"Admin\", \"status\": 1 }"
+            },
+            "url": {
+              "raw": "{{base_url}}/roles/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "roles",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Role Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/roles/1/toggle-status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "roles",
+                "1",
+                "toggle-status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Role",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/roles/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "roles",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Role Permissions",
+      "item": [
+        {
+          "name": "Assign Permission to Role",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"role_id\": 1, \"permission_id\": 1, \"status\": 1 }"
+            },
+            "url": {
+              "raw": "{{base_url}}/role-permissions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "role-permissions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Bulk Assign Permissions to Role",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"permission_ids\": [1, 2, 3, 5],\n  \"status\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/roles/1/permissions/bulk",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "roles",
+                "1",
+                "permissions",
+                "bulk"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Role Permissions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/role-permissions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "role-permissions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Role Permission By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/role-permissions/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "role-permissions",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Role Permission",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"status\": 0 }"
+            },
+            "url": {
+              "raw": "{{base_url}}/role-permissions/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "role-permissions",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Role-Permission Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/role-permissions/1/toggle-status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "role-permissions",
+                "1",
+                "toggle-status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Role Permission",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/role-permissions/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "role-permissions",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Masters / Emotion",
+      "item": [
+        {
+          "name": "List (Pagination + Search)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/emotions?search=&limit=10&offset=0&sort=created_at",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "emotions"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                },
+                {
+                  "key": "sort",
+                  "value": "created_at"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/emotions/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "emotions",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Calm\",\n  \"description\": \"Soft emotional state\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/masters/emotions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "emotions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Very Calm\",\n  \"description\": \"Updated description\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/masters/emotions/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "emotions",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/emotions/1/toggle",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "emotions",
+                "1",
+                "toggle"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete (Soft)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/emotions/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "emotions",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Masters / Tone",
+      "item": [
+        {
+          "name": "List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/tones?page=1&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "tones"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/tones/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "tones",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Soft & Calm\",\n  \"description\": \"Gentle tone\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/masters/tones",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "tones"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Soft & Friendly\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/masters/tones/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "tones",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/tones/1/toggle",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "tones",
+                "1",
+                "toggle"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/tones/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "tones",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Masters / Communication Style",
+      "item": [
+        {
+          "name": "List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/communication-styles",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "communication-styles"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/communication-styles/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "communication-styles",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Step by Step\",\n  \"description\": \"Logical explanation\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/masters/communication-styles",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "communication-styles"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Clear steps\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/masters/communication-styles/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "communication-styles",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/communication-styles/1/toggle",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "communication-styles",
+                "1",
+                "toggle"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/communication-styles/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "communication-styles",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Masters / Mode",
+      "item": [
+        {
+          "name": "List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/modes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "modes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/modes/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "modes",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Strategy\",\n  \"description\": \"Planning mode\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/masters/modes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "modes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Strategic planning\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/masters/modes/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "modes",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/modes/1/toggle",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "modes",
+                "1",
+                "toggle"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/modes/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "modes",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Masters / Domain",
+      "item": [
+        {
+          "name": "List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/domains",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "domains"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/domains/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "domains",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Career\",\n  \"description\": \"Career guidance\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/masters/domains",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "domains"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Career related topics\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/masters/domains/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "domains",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/domains/1/toggle",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "domains",
+                "1",
+                "toggle"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/domains/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "domains",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Masters / Delivery",
+      "item": [
+        {
+          "name": "List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/delivery",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "delivery"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/delivery/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "delivery",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Voice Friendly\",\n  \"description\": \"Optimized for speech\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/masters/delivery",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "delivery"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Avatar friendly delivery\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/masters/delivery/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "delivery",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/delivery/1/toggle",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "delivery",
+                "1",
+                "toggle"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/delivery/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "delivery",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Masters / System Safety",
+      "item": [
+        {
+          "name": "List (Pagination + Search)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/system-safety?search=&limit=10&offset=0&sort=created_at",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "system-safety"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                },
+                {
+                  "key": "sort",
+                  "value": "created_at"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/system-safety/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "system-safety",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Safe\",\n  \"description\": \"System level safety compliance\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/masters/system-safety",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "system-safety"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Highly Safe\",\n  \"description\": \"Updated system safety description\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/masters/system-safety/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "system-safety",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/system-safety/1/toggle",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "system-safety",
+                "1",
+                "toggle"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete (Soft)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/masters/system-safety/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "masters",
+                "system-safety",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "AI Settings",
+      "item": [
+        {
+          "name": "List (Admin Only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/ai-settings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ai-settings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/ai-settings/current",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "ai-settings",
+                "current"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/ai-settings/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "ai-settings",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"OpenAI GPT-4o\",\n  \"description\": \"Primary production AI\",\n  \"api_keys\": {\n    \"provider\": \"openai\",\n    \"api_key\": \"sk-xxxx\",\n    \"model\": \"gpt-4o\",\n    \"endpoint\": \"https://api.openai.com/v1\"\n  },\n  \"status\": true,\n  \"is_current\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/ai-settings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ai-settings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Updated AI provider description\",\n  \"is_current\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/ai-settings/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "ai-settings",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete (Soft)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/ai-settings/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "ai-settings",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+  {
+  "name": "Avatars",
+  "item": [
+    {
+      "name": "Create Avatar",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"avatar_name\": \"Wisdom Guide\",\n  \"category\": \"Life Coach\",\n  \"persona\": \"Caring Mentor\",\n  \"authority_level\": \"moderate\",\n  \"knowledge_source\": \"General\",\n  \"creator_type\": \"Professional\",\n  \"response_length\": \"medium\",\n  \"question_frequency\": \"moderate\",\n  \"sensitivity_level\": \"medium\",\n  \"memory_permission\": \"allowed\",\n  \"prompt_content\": \"Prompt html content\",\n  \"emotions\": [1],\n  \"tones\": [1],\n  \"domains\": [1],\n  \"modes\": [1],\n  \"communication_styles\": [1],\n  \"deliveries\": [1],\n  \"system_safety\": [1]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/avatars",
+          "host": ["{{base_url}}"],
+          "path": ["avatars"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "List Avatars (Pagination + Filters)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/avatars?page=1&limit=10&search=&is_active=true",
+          "host": ["{{base_url}}"],
+          "path": ["avatars"],
+          "query": [
+            { "key": "page", "value": "1" },
+            { "key": "limit", "value": "10" },
+            { "key": "search", "value": "" },
+            { "key": "is_active", "value": "true" }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Avatar By ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/avatars/1",
+          "host": ["{{base_url}}"],
+          "path": ["avatars", "1"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Toggle Status",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/avatars/1/toggle",
+          "host": ["{{base_url}}"],
+          "path": ["api", "avatars", "1", "toggle"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Avatar",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"persona\": \"Updated Mentor\",\n  \"tones\": [1]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/avatars/1",
+          "host": ["{{base_url}}"],
+          "path": ["avatars", "1"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Avatar (Soft)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/avatars/1",
+          "host": ["{{base_url}}"],
+          "path": ["avatars", "1"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Avatar Pricing",
+      "item": [
+        {
+          "name": "Create Pricing (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"avatar_id\": 1,\n  \"price\": 499.00,\n  \"currency\": \"INR\",\n  \"duration_minutes\": 30,\n  \"credits\": null,\n  \"validity_days\": 7,\n  \"is_premium\": true,\n  \"discount_percent\": 10,\n  \"trial_minutes\": 5,\n  \"reason\": \"Initial launch pricing\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/avatar-pricing",
+              "host": ["{{base_url}}"],
+              "path": ["avatar-pricing"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Active Pricing (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/avatar-pricing/active/1",
+              "host": ["{{base_url}}"],
+              "path": ["avatar-pricing", "active", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Pricing History (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/avatar-pricing/history/1",
+              "host": ["{{base_url}}"],
+              "path": ["avatar-pricing", "history", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Deactivate Pricing (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/avatar-pricing/1/deactivate?reason=Price+correction",
+              "host": ["{{base_url}}"],
+              "path": ["avatar-pricing", "1", "deactivate"],
+              "query": [
+                { "key": "reason", "value": "Price correction" }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+},
+{
+  "info": {
+    "name": "User Personalization (Root)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "User Personalization",
+      "item": [
+        {
+          "name": "Profile",
+          "item": [
+            {
+              "name": "Get Profile",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{access_token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/profile",
+                  "host": ["{{base_url}}"],
+                  "path": ["profile"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Profile (PATCH)",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{access_token}}" },
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"gender\": \"male\",\n  \"phone\": \"+91-9876543210\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/profile",
+                  "host": ["{{base_url}}"],
+                  "path": ["profile"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "User Settings",
+          "item": [
+            {
+              "name": "Get User Settings",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{access_token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/user/settings",
+                  "host": ["{{base_url}}"],
+                  "path": ["user", "settings"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update User Settings (PATCH)",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{access_token}}" },
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"style\": \"casual\",\n  \"flags\": {\n    \"emoji\": true,\n    \"headers\": false\n  },\n  \"custom_instructions\": \"Explain things simply\",\n  \"nickname\": \"Aamir\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/user/settings",
+                  "host": ["{{base_url}}"],
+                  "path": ["user", "settings"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Reset User Settings",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{access_token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/user/settings/reset",
+                  "host": ["{{base_url}}"],
+                  "path": ["user", "settings", "reset"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "User App Settings (Overrides)",
+          "item": [
+            {
+              "name": "Get App Settings",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{access_token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/user/app-settings/chat",
+                  "host": ["{{base_url}}"],
+                  "path": ["user", "app-settings", "chat"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Upsert App Settings (PATCH)",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{access_token}}" },
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"overrides\": {\n    \"style\": \"formal\",\n    \"flags\": {\n      \"emoji\": false\n    }\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/user/app-settings/chat",
+                  "host": ["{{base_url}}"],
+                  "path": ["user", "app-settings", "chat"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Reset App Settings",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{access_token}}" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/user/app-settings/chat/reset",
+                  "host": ["{{base_url}}"],
+                  "path": ["user", "app-settings", "chat", "reset"]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000/api" },
+    { "key": "access_token", "value": "PASTE_JWT_TOKEN_HERE" }
+  ]
+},
+
+
+
+    {
+      "name": "Onboarding",
+      "item": [
+        {
+          "name": "Save Onboarding (Create / Update)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"interests\": [1, 3, 5],\n  \"support_types\": [1, 4],\n  \"age_range\": \"18-25\",\n  \"language\": \"en\",\n  \"interaction_style_id\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/onboarding",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "onboarding"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Onboarding Config (Masters)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/onboarding/config",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "onboarding",
+                "config"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Onboarding Data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/onboarding/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "onboarding",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Onboarding (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"interests\": [2, 4],\n  \"support_types\": [2, 3],\n  \"age_range\": \"26-35\",\n  \"language\": \"hi\",\n  \"interaction_style_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/onboarding",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "onboarding"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin • Create Master",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"career_growth\",\n  \"label\": \"Career Growth\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/onboarding-masters/interests",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "onboarding-masters",
+                "interests"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin • Update Master",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"Updated Label\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/onboarding-masters/interests/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "onboarding-masters",
+                "interests",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin • DELETE Master",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"Updated Label\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/onboarding-masters/interests/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "onboarding-masters",
+                "interests",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin • Deactivate Master (Soft Delete)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/onboarding-masters/interests/1/deactivate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "onboarding-masters",
+                "interests",
+                "1",
+                "deactivate"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Conversations",
+      "item": [
+        {
+          "name": "Create Conversation Thread",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idempotency_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"avatar_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/conversation-threads",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversation-threads"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Conversation Threads (Sidebar)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/conversation-threads?limit=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversation-threads"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Conversation Thread By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/conversation-threads/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversation-threads",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Conversation Thread",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Career Guidance\",\n  \"status\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/conversation-threads/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversation-threads",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Conversation Thread (Soft)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/conversation-threads/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversation-threads",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Clear All Chats",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/conversation-threads",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversation-threads"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Message (User + AI + Memory)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Mujhe career guidance chahiye\",\n  \"client_message_id\": \"msg-001\",\n  \"chat_history\": [\n    {\"role\": \"user\", \"content\": \"Hello\"},\n    {\"role\": \"assistant\", \"content\": \"Namaste! Main aapki kaise madad kar sakta hoon?\"}\n  ],\n  \"language\": \"Hindi\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/conversation-threads/1/messages",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversation-threads",
+                "1",
+                "messages"
+              ]
+            },
+            "description": "Send message with AI response. Features:\n1. Avatar prompt as system message\n2. Cross-conversation memory (pgvector) - AI remembers ALL past conversations\n3. Message embeddings stored automatically for future context\n4. Language selection (Hindi/English)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Conversation Messages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/conversation-threads/1/messages?limit=50",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversation-threads",
+                "1",
+                "messages"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Message (Soft)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/conversation-messages/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversation-messages",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Conversation Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/conversation-threads/1/summary",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversation-threads",
+                "1",
+                "summary"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create / Update Conversation Summary",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"summary\": \"User is seeking career guidance and clarity.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/conversation-threads/1/summary",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversation-threads",
+                "1",
+                "summary"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Website Settings",
+      "item": [
+        {
+          "name": "Get Website Settings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/website-settings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "website-settings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Website Settings (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"website_name\": \"My Website\",\n  \"phone\": \"9999999999\",\n  \"email\": \"info@example.com\",\n  \"city\": \"Mumbai\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/website-settings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "website-settings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Website Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/website-settings/toggle",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "website-settings",
+                "toggle"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Content Pages",
+      "item": [
+        {
+          "name": "Create Content Page",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"About Us\",\n  \"content_html\": \"<p>About us content</p>\",\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/content-pages",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "content-pages"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Content Pages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/content-pages?page=1&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "content-pages"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Content Page By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/content-pages/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "content-pages",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Content Page By Slug (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/content-pages/slug/about-us",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "content-pages",
+                "slug",
+                "about-us"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Content Page",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"About Us Updated\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/content-pages/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "content-pages",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Content Page",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/content-pages/1/toggle",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "content-pages",
+                "1",
+                "toggle"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Content Page",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/content-pages/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "content-pages",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Contact Requests",
+      "item": [
+        {
+          "name": "Create Contact Request (Public)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phone\": \"+919999999999\",\n  \"subject\": \"Support Needed\",\n  \"message\": \"I am facing an issue with your service.\",\n  \"source\": \"website\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/contact-requests",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "contact-requests"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Contact Requests (Admin – Pagination + Filter)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/contact-requests?page=1&limit=10&status_filter=new",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "contact-requests"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status_filter",
+                  "value": "new"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Contact Request By ID (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/contact-requests/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "contact-requests",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Contact Request Status (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"replied\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/contact-requests/1/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "contact-requests",
+                "1",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payments & Wallet",
+      "item": [
+        {
+          "name": "Get Wallet Summary (Avatar-wise)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/payments/wallet",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "wallet"]
+            },
+            "description": "Get wallet summary with all avatar balances (per-avatar minutes tracking)"
+          },
+          "response": [
+            {
+              "name": "Wallet Summary Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"total_minutes_purchased\": 120,\n  \"total_credits_purchased\": 0,\n  \"total_minutes_used\": 75,\n  \"total_credits_used\": 0,\n  \"total_amount_spent\": 1998.00,\n  \"avatars\": [\n    {\n      \"avatar_id\": 1,\n      \"purchase_id\": 1,\n      \"minutes_balance\": 45,\n      \"credits_balance\": 0,\n      \"minutes_allocated\": 60,\n      \"credits_allocated\": 0,\n      \"minutes_used\": 15,\n      \"credits_used\": 0,\n      \"purchased_at\": \"2026-01-20T10:00:00\",\n      \"expires_at\": null,\n      \"is_expired\": false\n    },\n    {\n      \"avatar_id\": 2,\n      \"purchase_id\": 2,\n      \"minutes_balance\": 60,\n      \"credits_balance\": 0,\n      \"minutes_allocated\": 60,\n      \"credits_allocated\": 0,\n      \"minutes_used\": 0,\n      \"credits_used\": 0,\n      \"purchased_at\": \"2026-01-25T14:00:00\",\n      \"expires_at\": null,\n      \"is_expired\": false\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Avatar Balance",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/payments/avatar/1/balance",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "avatar", "1", "balance"]
+            },
+            "description": "Get balance for a specific avatar"
+          },
+          "response": [
+            {
+              "name": "Avatar Balance",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"is_purchased\": true,\n  \"avatar_id\": 1,\n  \"purchase_id\": 1,\n  \"minutes_balance\": 45,\n  \"credits_balance\": 0,\n  \"minutes_allocated\": 60,\n  \"credits_allocated\": 0,\n  \"minutes_used\": 15,\n  \"credits_used\": 0,\n  \"purchased_at\": \"2026-01-20T10:00:00\",\n  \"expires_at\": null\n}"
+            },
+            {
+              "name": "Avatar Not Purchased",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"is_purchased\": false,\n  \"avatar_id\": 5,\n  \"minutes_balance\": 0,\n  \"credits_balance\": 0,\n  \"minutes_allocated\": 0,\n  \"credits_allocated\": 0,\n  \"minutes_used\": 0,\n  \"credits_used\": 0\n}"
+            }
+          ]
+        },
+        {
+          "name": "Check Avatar Balance for Chat",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/payments/balance-check?avatar_id=1&usage_type=minutes&required=1",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "balance-check"],
+              "query": [
+                {"key": "avatar_id", "value": "1"},
+                {"key": "usage_type", "value": "minutes"},
+                {"key": "required", "value": "1"}
+              ]
+            },
+            "description": "Check if user has enough balance to chat with a specific avatar"
+          },
+          "response": [
+            {
+              "name": "Can Chat Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"can_chat\": true,\n  \"avatar_id\": 1,\n  \"balance\": 45,\n  \"usage_type\": \"minutes\",\n  \"is_low_balance\": false,\n  \"warning\": null\n}"
+            },
+            {
+              "name": "Low Balance Warning",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"can_chat\": true,\n  \"avatar_id\": 1,\n  \"balance\": 3,\n  \"usage_type\": \"minutes\",\n  \"is_low_balance\": true,\n  \"warning\": \"Low balance! Only 3 minutes remaining for this avatar.\"\n}"
+            },
+            {
+              "name": "Avatar Not Purchased",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"can_chat\": false,\n  \"error\": \"avatar_not_purchased\",\n  \"message\": \"You haven't purchased this avatar. Please purchase to chat.\",\n  \"avatar_id\": 5,\n  \"balance\": 0\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create Payment Order (Razorpay)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"avatar_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payments/create-order",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "create-order"]
+            },
+            "description": "Create Razorpay order for premium avatar purchase"
+          },
+          "response": [
+            {
+              "name": "Order Created",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"order_id\": \"order_O5mrGk2J1jLGnV\",\n  \"amount\": 29900,\n  \"currency\": \"INR\",\n  \"transaction_id\": 123,\n  \"key_id\": \"rzp_test_xxxx\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Verify Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"razorpay_order_id\": \"order_O5mrGk2J1jLGnV\",\n  \"razorpay_payment_id\": \"pay_O5mrXXXXXXXX\",\n  \"razorpay_signature\": \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payments/verify",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "verify"]
+            },
+            "description": "Verify Razorpay payment after user completes checkout"
+          },
+          "response": [
+            {
+              "name": "Payment Verified",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"transaction_id\": 123,\n  \"message\": \"Payment verified successfully\",\n  \"minutes_added\": 60,\n  \"credits_added\": 0\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Transaction History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/payments/transactions?limit=50&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "transactions"],
+              "query": [
+                {"key": "limit", "value": "50"},
+                {"key": "offset", "value": "0"}
+              ]
+            },
+            "description": "Get user's payment transaction history"
+          },
+          "response": [
+            {
+              "name": "Transaction List",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"data\": [\n    {\n      \"id\": 1,\n      \"user_id\": 5,\n      \"purchase_type\": \"avatar\",\n      \"avatar_id\": 2,\n      \"razorpay_order_id\": \"order_O5mrGk2J1jLGnV\",\n      \"razorpay_payment_id\": \"pay_O5mrXXXXXXXX\",\n      \"amount\": 499.00,\n      \"currency\": \"INR\",\n      \"minutes_granted\": 60,\n      \"credits_granted\": 0,\n      \"status\": \"captured\",\n      \"payment_method\": \"upi\",\n      \"initiated_at\": \"2026-01-26T10:00:00Z\",\n      \"completed_at\": \"2026-01-26T10:01:00Z\"\n    }\n  ],\n  \"total\": 1,\n  \"limit\": 50,\n  \"offset\": 0\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Usage History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/payments/usage-history?limit=50&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "usage-history"],
+              "query": [
+                {"key": "limit", "value": "50"},
+                {"key": "offset", "value": "0"}
+              ]
+            },
+            "description": "Get user's chat usage logs (minutes/credits spent per message)"
+          },
+          "response": [
+            {
+              "name": "Usage History",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 1,\n    \"user_id\": 5,\n    \"avatar_id\": 2,\n    \"thread_id\": 10,\n    \"message_id\": 45,\n    \"usage_type\": \"minutes\",\n    \"amount_used\": 1,\n    \"balance_before\": 46,\n    \"balance_after\": 45,\n    \"tokens_used\": 250,\n    \"created_at\": \"2026-01-26T12:30:00Z\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Get Purchased Avatars",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/payments/purchased-avatars",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "purchased-avatars"]
+            },
+            "description": "Get list of avatars purchased by user"
+          },
+          "response": [
+            {
+              "name": "Purchased Avatars List",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 1,\n    \"user_id\": 5,\n    \"avatar_id\": 2,\n    \"price_paid\": 499.00,\n    \"currency\": \"INR\",\n    \"minutes_allocated\": 60,\n    \"credits_allocated\": 0,\n    \"validity_days\": 30,\n    \"minutes_used\": 15,\n    \"credits_used\": 0,\n    \"purchased_at\": \"2026-01-26T10:00:00Z\",\n    \"expires_at\": \"2026-02-25T10:00:00Z\",\n    \"is_active\": true,\n    \"is_expired\": false\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Check Avatar Purchase Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/payments/has-avatar/1",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "has-avatar", "1"]
+            },
+            "description": "Check if user has purchased a specific avatar"
+          },
+          "response": [
+            {
+              "name": "Avatar Purchased",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"avatar_id\": 1,\n  \"is_purchased\": true\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin Analytics",
+      "item": [
+        {
+          "name": "Revenue Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/analytics/revenue-summary",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "analytics", "revenue-summary"]
+            },
+            "description": "Get total revenue summary (Admin only)"
+          },
+          "response": [
+            {
+              "name": "Revenue Summary",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"total_transactions\": 150,\n  \"total_revenue\": 74850.00,\n  \"avg_transaction\": 499.00\n}"
+            }
+          ]
+        },
+        {
+          "name": "Sales by Period",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/analytics/sales-by-period?period=day&limit=30",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "analytics", "sales-by-period"],
+              "query": [
+                {"key": "period", "value": "day"},
+                {"key": "limit", "value": "30"}
+              ]
+            },
+            "description": "Get sales breakdown by day/week/month"
+          },
+          "response": [
+            {
+              "name": "Sales by Day",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"period\": \"2026-01-26T00:00:00\",\n    \"count\": 12,\n    \"revenue\": 5988.00\n  },\n  {\n    \"period\": \"2026-01-25T00:00:00\",\n    \"count\": 8,\n    \"revenue\": 3992.00\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Avatar Sales Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/analytics/avatar-sales",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "analytics", "avatar-sales"]
+            },
+            "description": "Get sales stats for all avatars"
+          },
+          "response": [
+            {
+              "name": "Avatar Sales",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"avatar_id\": 2,\n    \"avatar_name\": \"Career Coach\",\n    \"total_purchases\": 45,\n    \"total_revenue\": 22455.00,\n    \"total_minutes_used\": 1350\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Top Selling Avatars",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/analytics/top-selling-avatars?limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "analytics", "top-selling-avatars"],
+              "query": [
+                {"key": "limit", "value": "10"}
+              ]
+            },
+            "description": "Get top selling avatars ranked by sales count"
+          },
+          "response": [
+            {
+              "name": "Top Sellers",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"avatar_id\": 2,\n    \"avatar_name\": \"Career Coach\",\n    \"category\": \"Professional\",\n    \"sales_count\": 45,\n    \"revenue\": 22455.00\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "All Transactions (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/analytics/transactions?limit=50&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "analytics", "transactions"],
+              "query": [
+                {"key": "limit", "value": "50"},
+                {"key": "offset", "value": "0"}
+              ]
+            },
+            "description": "Get all transactions with filters (Admin only)"
+          },
+          "response": [
+            {
+              "name": "All Transactions",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"data\": [],\n  \"total\": 0,\n  \"limit\": 50,\n  \"offset\": 0\n}"
+            }
+          ]
+        },
+        {
+          "name": "Usage Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/analytics/usage-analytics",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "analytics", "usage-analytics"]
+            },
+            "description": "Get overall usage analytics"
+          },
+          "response": [
+            {
+              "name": "Usage Stats",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"total_chats\": 5420,\n  \"total_minutes_used\": 5420,\n  \"unique_users\": 320,\n  \"unique_avatars\": 12\n}"
+            }
+          ]
+        },
+        {
+          "name": "Payment Methods Breakdown",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/analytics/payment-methods",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "analytics", "payment-methods"]
+            },
+            "description": "Get breakdown of payment methods used"
+          },
+          "response": [
+            {
+              "name": "Payment Methods",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"method\": \"upi\",\n    \"count\": 95,\n    \"total\": 47405.00\n  },\n  {\n    \"method\": \"card\",\n    \"count\": 40,\n    \"total\": 19960.00\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Wallet Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/analytics/wallet-summary",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "analytics", "wallet-summary"]
+            },
+            "description": "Get aggregate wallet stats across all users"
+          },
+          "response": [
+            {
+              "name": "Wallet Summary",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"total_wallets\": 320,\n  \"total_minutes_outstanding\": 4500,\n  \"total_credits_outstanding\": 8200,\n  \"total_lifetime_spent\": 74850.00\n}"
+            }
+          ]
+        },
+        {
+          "name": "Admin Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/analytics/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "analytics", "dashboard"]
+            },
+            "description": "Complete admin dashboard with all key metrics"
+          },
+          "response": [
+            {
+              "name": "Dashboard Data",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"revenue\": {\n    \"today\": {\"total_transactions\": 5, \"total_revenue\": 2495.00, \"avg_transaction\": 499.00},\n    \"week\": {\"total_transactions\": 35, \"total_revenue\": 17465.00, \"avg_transaction\": 499.00},\n    \"month\": {\"total_transactions\": 150, \"total_revenue\": 74850.00, \"avg_transaction\": 499.00},\n    \"all_time\": {\"total_transactions\": 150, \"total_revenue\": 74850.00, \"avg_transaction\": 499.00}\n  },\n  \"usage\": {\"total_chats\": 5420, \"total_minutes_used\": 5420, \"unique_users\": 320, \"unique_avatars\": 12},\n  \"top_avatars\": [],\n  \"wallet_summary\": {\"total_wallets\": 320, \"total_minutes_outstanding\": 4500, \"total_credits_outstanding\": 8200, \"total_lifetime_spent\": 74850.00},\n  \"payment_methods\": [],\n  \"sales_trend\": []\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000/api"
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    },
+    {
+      "key": "refresh_token",
+      "value": ""
+    }
+  ]
+}

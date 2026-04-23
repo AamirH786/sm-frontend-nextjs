@@ -1,0 +1,94 @@
+{
+    "detail": [
+        {
+            "type": "extra_forbidden",
+            "loc": [
+                "body",
+                "currency"
+            ],
+            "msg": "Extra inputs are not permitted",
+            "input": "INR"
+        },
+        {
+            "type": "extra_forbidden",
+            "loc": [
+                "body",
+                "credits_per_currency"
+            ],
+            "msg": "Extra inputs are not permitted",
+            "input": 2
+        },
+        {
+            "type": "extra_forbidden",
+            "loc": [
+                "body",
+                "trial_reset_days"
+            ],
+            "msg": "Extra inputs are not permitted",
+            "input": 30
+        },
+        {
+            "type": "extra_forbidden",
+            "loc": [
+                "body",
+                "purchase_validity_days"
+            ],
+            "msg": "Extra inputs are not permitted",
+            "input": 30
+        },
+        {
+            "type": "extra_forbidden",
+            "loc": [
+                "body",
+                "low_balance_warning_mins"
+            ],
+            "msg": "Extra inputs are not permitted",
+            "input": 10
+        },
+        {
+            "type": "extra_forbidden",
+            "loc": [
+                "body",
+                "deduction_interval_mins"
+            ],
+            "msg": "Extra inputs are not permitted",
+            "input": 0.25
+        },
+        {
+            "type": "extra_forbidden",
+            "loc": [
+                "body",
+                "referral_enabled"
+            ],
+            "msg": "Extra inputs are not permitted",
+            "input": true
+        },
+        {
+            "type": "extra_forbidden",
+            "loc": [
+                "body",
+                "referrer_reward_credits"
+            ],
+            "msg": "Extra inputs are not permitted",
+            "input": 50
+        },
+        {
+            "type": "extra_forbidden",
+            "loc": [
+                "body",
+                "referred_signup_bonus"
+            ],
+            "msg": "Extra inputs are not permitted",
+            "input": 15
+        },
+        {
+            "type": "extra_forbidden",
+            "loc": [
+                "body",
+                "referral_reward_on"
+            ],
+            "msg": "Extra inputs are not permitted",
+            "input": "first_purchase"
+        }
+    ]
+}

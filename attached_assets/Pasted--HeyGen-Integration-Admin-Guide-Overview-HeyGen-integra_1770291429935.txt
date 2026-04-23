@@ -1,0 +1,279 @@
+# HeyGen Integration - Admin Guide
+
+## Overview
+HeyGen integration allows creating interactive video avatars that can speak with lip-sync. Admin can:
+1. **Upload Image** → Create Photo Avatar (All Plans)
+2. **Provide Video URLs** → Create Video Avatar (Enterprise Only)
+3. **Use Existing HeyGen Avatar** → Link to SummonMind avatar
+
+---
+
+## Setup (One Time)
+
+### 1. Add HeyGen API Key as Secret
+```
+HEYGEN_API_KEY=your_heygen_api_key_here
+```
+
+### 2. Register Router in main.py
+```python
+from app.api.heygen import router as heygen_router
+app.include_router(heygen_router, prefix="/api")
+```
+
+### 3. Run Database Migration
+Run section 8 from `docs/MIGRATIONS.sql` on production database.
+
+---
+
+## Avatar Creation Options
+
+### Option 1: Create Photo Avatar (Upload Image)
+Best for: Quick avatar creation from any photo.
+
+```http
+POST /api/heygen/create-photo-avatar
+Authorization: Bearer {admin_token}
+Content-Type: multipart/form-data
+
+avatar_name: "Vivekanand"
+heygen_voice_id: "voice_abc123"
+heygen_language: "en-US"
+prompt_content: "You are a wise teacher..."
+category: "Teacher"
+image: [UPLOAD IMAGE FILE - JPEG/PNG]
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Photo Avatar created. Training in progress.",
+  "avatar": {
+    "id": 5,
+    "avatar_name": "Vivekanand",
+    "heygen_avatar_id": "group_abc123",
+    "avatar_type": "heygen",
+    "status": "training"
+  },
+  "note": "Avatar will be ready for streaming after training completes (few minutes)."
+}
+```
+
+### Option 2: Create Video Avatar (Enterprise Only)
+Best for: High-fidelity avatars from video footage.
+
+```http
+POST /api/heygen/create-video-avatar
+Authorization: Bearer {admin_token}
+Content-Type: application/json
+
+{
+  "training_video_url": "https://your-storage.com/training.mp4",
+  "consent_video_url": "https://your-storage.com/consent.mp4",
+  "avatar_name": "Vivekanand",
+  "heygen_voice_id": "voice_abc123"
+}
+```
+
+**Requirements:**
+- Training video: MP4, 2+ minutes, 720p minimum
+- Consent video: Person stating permission to use their likeness
+- Both must be publicly accessible URLs (AWS S3, Google Cloud, etc.)
+
+### Option 3: Link Existing HeyGen Avatar
+If avatar already exists in HeyGen Dashboard:
+
+```http
+POST /api/heygen/link-avatar/2
+Authorization: Bearer {admin_token}
+Content-Type: application/json
+
+{
+  "heygen_avatar_id": "Wayne_20240711",
+  "heygen_voice_id": "voice_abc123",
+  "heygen_language": "en-US"
+}
+```
+
+### Option 4: Manual Fields in Avatar Create/Update
+Add HeyGen fields directly when creating/updating avatar:
+
+```http
+POST /api/avatars
+{
+  "avatar_name": "Vivekanand",
+  "heygen_avatar_id": "Wayne_20240711",
+  "heygen_voice_id": "voice_abc123",
+  "avatar_type": "heygen",
+  ...
+}
+```
+
+---
+
+## Check Avatar Status
+
+```http
+GET /api/heygen/avatar-status/{heygen_avatar_id}?avatar_type=photo
+Authorization: Bearer {admin_token}
+```
+- `avatar_type=photo` for Photo Avatars
+- `avatar_type=video` for Video Avatars
+
+---
+
+## Get Voice List
+
+```http
+GET /api/heygen/voices
+Authorization: Bearer {admin_token}
+```
+
+Returns all available voices from HeyGen for selection.
+
+---
+
+## New Avatar Fields
+
+These fields are now available in existing Avatar APIs:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `heygen_avatar_id` | string | HeyGen avatar ID (e.g., "Wayne_20240711") |
+| `heygen_voice_id` | string | HeyGen voice ID for TTS |
+| `heygen_preview_image` | string | Preview image URL |
+| `heygen_preview_video` | string | Preview video URL |
+| `heygen_gender` | string | male/female |
+| `heygen_language` | string | Language code (default: en-US) |
+| `is_interactive` | boolean | Is streaming avatar (default: true) |
+| `avatar_type` | string | default/heygen/custom |
+
+---
+
+## Using Existing Avatar APIs
+
+### Create Avatar with HeyGen
+
+```http
+POST /api/avatars
+Authorization: Bearer {admin_token}
+Content-Type: application/json
+
+{
+  "avatar_name": "Vivekanand",
+  "category": "Teacher",
+  "persona": "Vivekanand",
+  "prompt_content": "You are a wise teacher...",
+  "heygen_avatar_id": "Wayne_20240711",
+  "heygen_voice_id": "voice_abc123",
+  "heygen_gender": "male",
+  "heygen_language": "en-US",
+  "avatar_type": "heygen",
+  "is_interactive": true,
+  "emotions": [1],
+  "tones": [1]
+}
+```
+
+### Update Existing Avatar with HeyGen Details
+
+```http
+PATCH /api/avatars/2
+Authorization: Bearer {admin_token}
+Content-Type: application/json
+
+{
+  "heygen_avatar_id": "Wayne_20240711",
+  "heygen_voice_id": "voice_abc123",
+  "avatar_type": "heygen"
+}
+```
+
+### List Avatars (HeyGen fields included automatically)
+
+```http
+GET /api/avatars
+Authorization: Bearer {admin_token}
+```
+
+**Response:**
+```json
+{
+  "data": [
+    {
+      "id": 2,
+      "avatar_name": "Vivekanand",
+      "category": "Teacher",
+      "heygen_avatar_id": "Wayne_20240711",
+      "heygen_voice_id": "voice_abc123",
+      "heygen_preview_image": "https://...",
+      "heygen_gender": "male",
+      "heygen_language": "en-US",
+      "is_interactive": true,
+      "avatar_type": "heygen",
+      "active_pricing": { ... }
+    }
+  ]
+}
+```
+
+---
+
+## Additional HeyGen APIs
+
+These are only for HeyGen-specific operations:
+
+### 1. Link Existing Avatar to HeyGen
+Quickly link an existing avatar to HeyGen (fetches preview image automatically).
+
+```http
+POST /api/heygen/link-avatar/2
+Authorization: Bearer {admin_token}
+Content-Type: application/json
+
+{
+  "heygen_avatar_id": "Wayne_20240711",
+  "heygen_voice_id": "voice_abc123",
+  "heygen_language": "en-US"
+}
+```
+
+### 2. List HeyGen Avatars (Optional)
+View available avatars from your HeyGen account.
+
+```http
+GET /api/heygen/avatars
+Authorization: Bearer {admin_token}
+```
+
+### 3. List HeyGen Voices (Optional)
+View available voices from HeyGen.
+
+```http
+GET /api/heygen/voices
+Authorization: Bearer {admin_token}
+```
+
+---
+
+## Workflow for Admin
+
+### Option A: Create New Avatar with HeyGen
+1. Create avatar in HeyGen Dashboard (get avatar_id)
+2. Use `POST /api/avatars` with all fields including HeyGen fields
+3. Set pricing via `/api/avatar-pricing`
+
+### Option B: Link Existing Avatar to HeyGen
+1. Create avatar in HeyGen Dashboard (get avatar_id)
+2. Use `POST /api/heygen/link-avatar/{id}` to link
+3. Or use `PATCH /api/avatars/{id}` to update HeyGen fields
+
+---
+
+## Important Notes
+
+- Only "interactive" type avatars from HeyGen work for streaming
+- Avatar ID format from HeyGen: "Wayne_20240711" or "custom_abc123"
+- Set `avatar_type: "heygen"` for HeyGen avatars
+- Set `avatar_type: "default"` for non-HeyGen avatars

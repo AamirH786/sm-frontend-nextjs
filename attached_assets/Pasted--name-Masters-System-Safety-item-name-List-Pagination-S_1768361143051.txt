@@ -1,0 +1,182 @@
+{
+			"name": "Masters / System Safety",
+			"item": [
+				{
+					"name": "List (Pagination + Search)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/masters/system-safety?search=&limit=10&offset=0&sort=created_at",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"masters",
+								"system-safety"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": ""
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								},
+								{
+									"key": "sort",
+									"value": "created_at"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/masters/system-safety/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"masters",
+								"system-safety",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Safe\",\n  \"description\": \"System level safety compliance\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/masters/system-safety",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"masters",
+								"system-safety"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Highly Safe\",\n  \"description\": \"Updated system safety description\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/masters/system-safety/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"masters",
+								"system-safety",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Toggle Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/masters/system-safety/1/toggle",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"masters",
+								"system-safety",
+								"1",
+								"toggle"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete (Soft)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/masters/system-safety/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"masters",
+								"system-safety",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}

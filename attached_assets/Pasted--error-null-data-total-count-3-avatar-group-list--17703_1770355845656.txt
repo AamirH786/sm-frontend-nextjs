@@ -1,0 +1,38 @@
+{
+    "error": null,
+    "data": {
+        "total_count": 3,
+        "avatar_group_list": [
+            {
+                "id": "6d0bc666b3a04b178df054d0a9125986",
+                "name": "Avatar 3",
+                "created_at": 1770353426.0,
+                "num_looks": 1,
+                "preview_image": "https://files2.heygen.ai/image/c1d261cebac844a1b7997e04c2443fd3/original.png?Expires=1770958226&Signature=VZ21~f9cwBaq3qkfuFWy8ewgK8Icr2ZtLJh~Hw50nEDDX8XJHBt4DDUit40jfAY2ytv2MGGDfYzKltdpLKuBKjghLTG9d254oD1bDzq22BzjL-z0f2pjHNx3RB4ror~HDHqKp75OZuyu8fhVltPUyUKE7gtk~WgYQ7~Gc8IOSaleDn7R8W77iliHholAl~4FNGPSHDFFWtpnJT42smJNeGv2lYc5GX-oI-NEpZKv2uKPxcwe98leV8yUSiQXpiuec3c43fKox~VRicHNvowNuXmRViBbxS876s7vacdnA-T7pi7J1XbOCSnjkoa6r48dj6EbN56iNDsc6TU106~Xxw__&Key-Pair-Id=K38HBHX5LX3X2H",
+                "group_type": "PHOTO",
+                "train_status": "empty",
+                "default_voice_id": null
+            },
+            {
+                "id": "813fc54a817444c4b80cd864c59aa915",
+                "name": "Avatar 3",
+                "created_at": 1770353226.0,
+                "num_looks": 1,
+                "preview_image": "https://files2.heygen.ai/image/2f57bd9539594469af91e0a8079d2c4b/original.png?Expires=1770958026&Signature=ld4h4XFe8TaNcSXk-biC2KULYIX5ywpdh0e1ry~CSpdVhT0BWqercgLSpbAkrQXoWY5vpxNYEELFuY~GyXePCTUZo3PyubU2k5f-1apsjcVvrX9iynx8g5KD~AcUezJBbHD6CET0mvwlJpRF-1UyngbMGuaMPklczGxTT454jjFv~g1e4q6dpvHfWM4ri7PKaj5eZXrXKhQyHb0a6DcTWXHfEr1UjbwYuRr9W8X1DQVGTgxbVpzZTIlHewVxtVdGpJ-9d8by55cMWsAAF9n9nPxGhNSlsGttO6sKDenQy8Wz9q~09q2SuHhJgiPRhybaZTYwy69hreo0yQyTivqwqA__&Key-Pair-Id=K38HBHX5LX3X2H",
+                "group_type": "PHOTO",
+                "train_status": "empty",
+                "default_voice_id": null
+            },
+            {
+                "id": "b7293c3344c4416cb82743b2f7742a22",
+                "name": "Avatar 3",
+                "created_at": 1770295245.0,
+                "num_looks": 1,
+                "preview_image": "https://files2.heygen.ai/image/41c886798f31481d8e28ce53d77cf60c/original.png?Expires=1770900045&Signature=NtK2C8U1S0FuRTOM8KZnH6hlk3o~7klHC65Ivp~i67IRb4NC61QXLULYUj1q4Ok7pAWBmbw0VXV7PPG1727AVy3LBWr9gpI4JNeNuV03yKiUiTOxRcMp9u35cZ8TTnlt8w4QTZkBuzPdHLxOnr~tcUJ~wjrJSTxCoWaxQFQL3PHLw212nuKIDpKAKkWtS1~fArlbimAnGmMllB2Ns72h6kbo27xCg36sWHvwNZvXX7K4TU3DAXNb6oAb5oiMaGsHsWXnCMpxSUidEeB5ECj0jKlwp9Ko9IgxLm7L7EDnqxaYLd63ngkeXxFMewKweO70Ilb4MqGPDCRqcAdO370K4w__&Key-Pair-Id=K38HBHX5LX3X2H",
+                "group_type": "PHOTO",
+                "train_status": "empty",
+                "default_voice_id": null
+            }
+        ]
+    }
+}
