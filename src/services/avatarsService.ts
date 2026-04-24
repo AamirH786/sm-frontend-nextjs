@@ -125,7 +125,11 @@ const normalizeResponse = <T>(response: any): ApiResponse<T> => {
 
 export const avatarsService = {
   list: async (params?: AvatarListParams): Promise<ApiResponse<Avatar>> => {
-    const res = await api.get('/avatars', { params });
+    const normalizedParams = {
+      ...params,
+      limit: params?.limit ? Math.min(params.limit, 100) : params?.limit,
+    };
+    const res = await api.get('/avatars', { params: normalizedParams });
     return normalizeResponse<Avatar>(res.data);
   },
   get: async (id: number): Promise<Avatar> => {
@@ -193,3 +197,4 @@ export const avatarsService = {
     return res.data?.data || res.data;
   },
 };
+
