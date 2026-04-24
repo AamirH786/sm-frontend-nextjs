@@ -7,6 +7,7 @@ export interface ActivePricing {
   currency: string;
   duration_minutes: number;
   credits?: number | null;
+  credits_per_minute?: number | null;
   validity_days: number;
   is_premium?: boolean;
   discount_percent?: number | null;

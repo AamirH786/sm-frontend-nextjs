@@ -50,7 +50,7 @@ export default function RatingsPage() {
       if (filterStars) params.stars = filterStars;
       const query = new URLSearchParams(params).toString();
       const res = await api.get<RatingsResponse>(`/ratings/admin/all${query ? `?${query}` : ""}`);
-      setData(res);
+      setData(res.data);
     } catch {
       setData(null);
     } finally {

@@ -17,6 +17,19 @@ export type OrganizationItem = {
   updated_at?: string | null;
 };
 
+export type OrganizationContactPerson = {
+  id: number;
+  username?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+};
+
+export type OrganizationDetailItem = OrganizationItem & {
+  contact_person?: OrganizationContactPerson | null;
+};
+
 export type OrganizationCreatePayload = {
   name: string;
   industry?: string | null;

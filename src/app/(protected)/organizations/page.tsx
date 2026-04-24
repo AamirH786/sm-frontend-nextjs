@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { BadgePlus, Building2, Eye, Globe, Mail, MapPin, Palette, Pencil, Sparkles, Trash2 } from 'lucide-react';
+import { BadgePlus, Building2, Eye, Globe, Mail, MapPin, Palette, Pencil, Phone, Sparkles, Trash2, UserRound } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import IconButton from '@/components/ui/IconButton';
 import Input from '@/components/ui/Input';
 import Modal from '@/components/ui/Modal';
 import RichTextEditor from '@/components/ui/RichTextEditor';
@@ -171,9 +172,10 @@ export default function OrganizationsListPage() {
             Showing latest available organizations. Live refresh failed: {error}
           </div>
         ) : null}
-        <div className="hidden grid-cols-[1.5fr_1fr_0.8fr_1fr] gap-4 border-b border-slate-200 px-5 py-4 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500 md:grid">
+        <div className="hidden grid-cols-[1.5fr_1fr_1fr_0.8fr_1fr] gap-4 border-b border-slate-200 px-5 py-4 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500 md:grid">
           <span>Organization</span>
           <span>Industry</span>
+          <span>Contact Person</span>
           <span>Status</span>
           <span className="text-right">Actions</span>
         </div>
@@ -193,7 +195,7 @@ export default function OrganizationsListPage() {
           sortedItems.map((item) => {
             const isActive = item.status === 1 || String(item.status).toLowerCase() === 'active';
             return (
-              <div key={item.id} className="grid gap-4 border-b border-slate-100 px-5 py-4 text-sm text-slate-700 last:border-b-0 md:grid-cols-[1.5fr_1fr_0.8fr_1fr]">
+              <div key={item.id} className="grid gap-4 border-b border-slate-100 px-5 py-4 text-sm text-slate-700 last:border-b-0 md:grid-cols-[1.5fr_1fr_1fr_0.8fr_1fr]">
                 <div className="flex items-center gap-3">
                   <div
                     className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl text-white"
@@ -212,42 +214,33 @@ export default function OrganizationsListPage() {
                   </div>
                 </div>
                 <div className="text-slate-600 md:text-slate-700">{item.industry || 'Not specified'}</div>
+                <div className="min-w-0 md:self-center">
+                  <p className="truncate font-medium text-slate-900">{item.email || 'Not added yet'}</p>
+                  <p className="truncate text-xs text-slate-500">{item.phone || 'Phone not added'}</p>
+                </div>
                 <div className="md:self-center">
                   <span className={`rounded-full px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] ${isActive ? 'bg-green-50 text-green-700' : 'bg-slate-100 text-slate-600'}`}>
                     {isActive ? 'Active' : 'Inactive'}
                   </span>
                 </div>
                 <div className="flex items-center justify-start gap-2 md:justify-end">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelected(item);
-                      setIsViewOpen(true);
-                    }}
-                    className="rounded-xl border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-50"
-                    aria-label={`View ${item.name}`}
-                  >
-                    <Eye size={16} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => openEdit(item)}
-                    className="rounded-xl border border-slate-200 p-2 text-blue-600 transition hover:bg-blue-50"
-                    aria-label={`Edit ${item.name}`}
-                  >
-                    <Pencil size={16} />
-                  </button>
-                  <button
-                    type="button"
+                  <Link href={`/organizations/${item.id}`}>
+                    <IconButton label="View full" icon={<Eye size={16} />} />
+                  </Link>
+                  <IconButton label="Quick view" icon={<Building2 size={16} />} onClick={() => {
+                    setSelected(item);
+                    setIsViewOpen(true);
+                  }} />
+                  <IconButton label="Edit" icon={<Pencil size={16} />} onClick={() => openEdit(item)} />
+                  <IconButton
+                    label="Delete"
+                    icon={<Trash2 size={16} />}
+                    variant="danger"
                     onClick={() => {
                       setSelected(item);
                       setIsDeleteOpen(true);
                     }}
-                    className="rounded-xl border border-slate-200 p-2 text-red-600 transition hover:bg-red-50"
-                    aria-label={`Delete ${item.name}`}
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  />
                 </div>
               </div>
             );
@@ -328,6 +321,13 @@ export default function OrganizationsListPage() {
                 </div>
                 <p className="break-words text-sm text-slate-600">{selected.email || 'Not added yet'}</p>
               </div>
+              <div className="rounded-3xl border border-slate-200 bg-slate-50/70 p-5">
+                <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-900">
+                  <Phone size={16} className="text-blue-600" />
+                  Contact Phone
+                </div>
+                <p className="break-words text-sm text-slate-600">{selected.phone || 'Not added yet'}</p>
+              </div>
               <div className="rounded-3xl border border-slate-200 bg-slate-50/70 p-5 md:col-span-2">
                 <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-900">
                   <MapPin size={16} className="text-blue-600" />
@@ -342,8 +342,30 @@ export default function OrganizationsListPage() {
               <div className="prose prose-sm mt-4 max-w-none text-slate-700" dangerouslySetInnerHTML={{ __html: selected.description || '<p>No description added yet.</p>' }} />
             </section>
 
+            <section className="rounded-3xl border border-slate-200 bg-slate-50/80 p-6 shadow-sm">
+              <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-slate-500">
+                <UserRound size={16} className="text-blue-600" />
+                Contact Person
+              </div>
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Primary Contact</p>
+                  <p className="mt-2 text-sm font-medium text-slate-900">{selected.email || 'Not added yet'}</p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Phone</p>
+                  <p className="mt-2 text-sm font-medium text-slate-900">{selected.phone || 'Not added yet'}</p>
+                </div>
+              </div>
+            </section>
+
             <div className="flex justify-end">
-              <Button variant="outline" onClick={() => setIsViewOpen(false)}>Close</Button>
+              <div className="flex gap-3">
+                <Link href={`/organizations/${selected.id}`}>
+                  <Button variant="outline">View Full Page</Button>
+                </Link>
+                <Button variant="outline" onClick={() => setIsViewOpen(false)}>Close</Button>
+              </div>
             </div>
           </div>
         ) : null}

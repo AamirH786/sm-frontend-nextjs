@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { CalendarDays, Clock3, Layers3, Plus, Users } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import IconButton from '@/components/ui/IconButton';
 import Input from '@/components/ui/Input';
 import Modal from '@/components/ui/Modal';
 import Select from '@/components/ui/Select';
@@ -10,6 +12,7 @@ import Textarea from '@/components/ui/Textarea';
 import OrganizationAdminHeader from '@/components/organization/admin/OrganizationAdminHeader';
 import { useToast } from '@/context/ToastContext';
 import { avatarsService, type Avatar } from '@/services/avatarsService';
+import { adminLearningService, type LearningCourse } from '@/services/adminLearningService';
 import organizationAdminService, {
   type BatchPayload,
   type OrganizationBatchMemberRecord,
@@ -96,6 +99,7 @@ export default function OrganizationBatchesAdminPage() {
   const [organizations, setOrganizations] = useState<OrganizationItem[]>([]);
   const [selectedOrganizationId, setSelectedOrganizationId] = useState<number | null>(null);
   const [avatars, setAvatars] = useState<Avatar[]>([]);
+  const [courses, setCourses] = useState<LearningCourse[]>([]);
   const [members, setMembers] = useState<OrganizationMemberRecord[]>([]);
   const [batches, setBatches] = useState<OrganizationBatchRecord[]>([]);
   const [selectedBatch, setSelectedBatch] = useState<OrganizationBatchRecord | null>(null);
@@ -114,13 +118,15 @@ export default function OrganizationBatchesAdminPage() {
   useEffect(() => {
     const bootstrap = async () => {
       try {
-        const [orgs, avatarResponse] = await Promise.all([
+        const [orgs, avatarResponse, courseResponse] = await Promise.all([
           organizationAdminService.listOrganizations({ limit: 1000, skip: 0 }),
           avatarsService.list({ page: 1, limit: 200 }),
+          adminLearningService.courses.list(),
         ]);
         setOrganizations(orgs);
         setSelectedOrganizationId((current) => current ?? orgs[0]?.id ?? null);
         setAvatars(avatarResponse.data ?? []);
+        setCourses(courseResponse ?? []);
       } catch (error: any) {
         showToast(error?.message || 'Unable to load organization batch settings.', 'error');
       } finally {
@@ -158,6 +164,7 @@ export default function OrganizationBatchesAdminPage() {
   }, [selectedOrganizationId, showToast]);
 
   const avatarMap = useMemo(() => new Map(avatars.map((avatar) => [avatar.id, avatar])), [avatars]);
+  const courseMap = useMemo(() => new Map(courses.map((course) => [course.id, course])), [courses]);
   const memberMap = useMemo(() => new Map(members.map((member) => [member.id, member])), [members]);
 
   const sortedBatches = useMemo(
@@ -325,79 +332,61 @@ export default function OrganizationBatchesAdminPage() {
           No batches created for this organization yet.
         </div>
       ) : (
-        <div className="grid gap-5 xl:grid-cols-2">
-          {sortedBatches.map((batch) => {
-            const avatarName = batch.avatar_id ? avatarMap.get(batch.avatar_id)?.avatar_name : null;
-            return (
-              <article
-                key={batch.id}
-                className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="space-y-2">
-                    <h2 className="text-xl font-semibold tracking-tight text-slate-900">{batch.name}</h2>
-                    <p className="max-w-2xl text-sm leading-6 text-slate-500">
-                      {batch.description || 'Batch schedule ready for organization learners.'}
-                    </p>
-                  </div>
-                  <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${batch.status === 1 ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
-                    {batch.status === 1 ? 'Active' : 'Inactive'}
-                  </span>
-                </div>
+        <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
+          <div className="hidden grid-cols-[1.4fr_1fr_1fr_0.8fr_1fr] gap-4 border-b border-slate-200 px-5 py-4 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 lg:grid">
+            <span>Batch</span>
+            <span>Avatar</span>
+            <span>Course</span>
+            <span>Status</span>
+            <span className="text-right">Actions</span>
+          </div>
 
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                      <CalendarDays size={14} />
-                      Schedule
-                    </div>
-                    <p className="mt-2 text-sm font-medium text-slate-900">{batch.schedule_days}</p>
-                  </div>
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                      <Clock3 size={14} />
-                      Time & Duration
-                    </div>
-                    <p className="mt-2 text-sm font-medium text-slate-900">
-                      {normalizeTimeInput(batch.schedule_time)} • {batch.duration_minutes} mins
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                      <Layers3 size={14} />
-                      Avatar
-                    </div>
-                    <p className="mt-2 text-sm font-medium text-slate-900">{avatarName || 'Not assigned'}</p>
-                  </div>
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                      <Users size={14} />
-                      Course / Created
-                    </div>
-                    <p className="mt-2 text-sm font-medium text-slate-900">
-                      {batch.course_id ? `Course #${batch.course_id}` : 'No course'} • {formatDateTime(batch.created_at)}
-                    </p>
-                  </div>
-                </div>
+          <div className="divide-y divide-slate-100">
+            {sortedBatches.map((batch) => {
+              const avatarName = batch.avatar_id ? avatarMap.get(batch.avatar_id)?.avatar_name : null;
+              const courseName = batch.course_id ? courseMap.get(batch.course_id)?.title : null;
 
-                <div className="mt-5 flex flex-wrap gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={async () => {
-                      setIsMembersOpen(true);
-                      setSelectedMemberIds([]);
-                      await loadBatchMembers(batch);
-                    }}
-                  >
-                    Manage Members
-                  </Button>
-                  <Button variant="outline" onClick={() => openEditModal(batch)}>Edit</Button>
-                  <Button variant="danger" onClick={() => setBatchToDelete(batch)}>Delete</Button>
+              return (
+                <div key={batch.id} className="grid gap-4 px-5 py-5 lg:grid-cols-[1.4fr_1fr_1fr_0.8fr_1fr] lg:items-center">
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold text-slate-900">{batch.name}</p>
+                    <p className="truncate text-xs text-slate-500">
+                      {batch.description || `${batch.schedule_days} - ${normalizeTimeInput(batch.schedule_time)} - ${batch.duration_minutes} mins`}
+                    </p>
+                  </div>
+                  <div className="text-sm text-slate-700">{avatarName || 'Not assigned'}</div>
+                  <div className="text-sm text-slate-700">{courseName || 'No course linked'}</div>
+                  <div>
+                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${batch.status === 1 ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                      {batch.status === 1 ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-end gap-2">
+                    <Link href={`/organizations/batches/${batch.id}?orgId=${selectedOrganizationId}`}>
+                      <IconButton label="View full" icon={<Layers3 size={16} />} />
+                    </Link>
+                    <IconButton
+                      label="Manage members"
+                      icon={<Users size={16} />}
+                      onClick={async () => {
+                        setIsMembersOpen(true);
+                        setSelectedMemberIds([]);
+                        await loadBatchMembers(batch);
+                      }}
+                    />
+                    <IconButton label="Edit" icon={<CalendarDays size={16} />} onClick={() => openEditModal(batch)} />
+                    <IconButton
+                      label="Delete"
+                      icon={<Plus size={16} className="rotate-45" />}
+                      variant="danger"
+                      onClick={() => setBatchToDelete(batch)}
+                    />
+                  </div>
                 </div>
-              </article>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        </section>
       )}
 
       <Modal
@@ -481,13 +470,18 @@ export default function OrganizationBatchesAdminPage() {
               value={formState.avatar_id}
               onChange={(value) => setFormState((current) => ({ ...current, avatar_id: String(value) }))}
             />
-            <Input
-              label="Course ID"
-              type="number"
+            <Select
+              label="Course"
+              options={[
+                { value: '', label: 'No course linked' },
+                ...courses.map((course) => ({
+                  value: course.id,
+                  label: course.title,
+                })),
+              ]}
               value={formState.course_id}
-              onChange={(event) => setFormState((current) => ({ ...current, course_id: event.target.value }))}
-              placeholder="Optional course ID"
-              hint="Keep empty if this batch is not tied to a specific course."
+              onChange={(value) => setFormState((current) => ({ ...current, course_id: String(value) }))}
+              placeholder="Select course"
             />
           </div>
 

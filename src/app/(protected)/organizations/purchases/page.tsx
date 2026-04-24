@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { CalendarClock, CreditCard, Eye, ReceiptText, Search, Sparkles } from 'lucide-react';
 import OrganizationAdminHeader from '@/components/organization/admin/OrganizationAdminHeader';
 import Button from '@/components/ui/Button';
+import IconButton from '@/components/ui/IconButton';
 import Input from '@/components/ui/Input';
 import Modal from '@/components/ui/Modal';
 import Select from '@/components/ui/Select';
@@ -239,11 +241,11 @@ export default function OrganizationPurchasesAdminPage() {
                     </span>
                   </div>
 
-                  <div className="flex justify-end">
-                    <Button variant="ghost" className="gap-2" onClick={() => setSelectedPurchase(purchase)}>
-                      <Eye size={16} />
-                      View
-                    </Button>
+                  <div className="flex justify-end gap-2">
+                    <Link href={`/organizations/purchases/${purchase.id}?orgId=${selectedOrganizationId}`}>
+                      <IconButton label="View full" icon={<ReceiptText size={16} />} />
+                    </Link>
+                    <IconButton label="Quick view" icon={<Eye size={16} />} onClick={() => setSelectedPurchase(purchase)} />
                   </div>
                 </div>
               );

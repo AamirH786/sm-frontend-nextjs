@@ -44,7 +44,7 @@ const defaultSuggestionLabels = ['Short', 'Detailed', 'Professional', 'Simple'];
 type PersonaFormValues = {
   name: string;
   category_id: string;
-  subject_ids: string[];
+  subject_ids: number[];
   is_duplicate_locked: boolean;
 };
 
@@ -146,11 +146,11 @@ export default function PersonasPage() {
     [categories]
   );
   const subjectOptions = useMemo(
-    () => scopedSubjects.map((subject) => ({ value: String(subject.id), label: subject.name })),
+    () => scopedSubjects.map((subject) => ({ value: Number(subject.id), label: subject.name })),
     [scopedSubjects]
   );
   const selectedSubjects = useMemo(
-    () => scopedSubjects.filter((subject) => (watchedSubjectIds ?? []).includes(String(subject.id))),
+    () => scopedSubjects.filter((subject) => (watchedSubjectIds ?? []).includes(Number(subject.id))),
     [scopedSubjects, watchedSubjectIds]
   );
 
@@ -184,7 +184,7 @@ export default function PersonasPage() {
 
   useEffect(() => {
     if (watchedSubjectIds?.length) {
-      const validIds = watchedSubjectIds.filter((id) => scopedSubjects.some((subject) => String(subject.id) === String(id)));
+      const validIds = watchedSubjectIds.filter((id) => scopedSubjects.some((subject) => Number(subject.id) === Number(id)));
       if (validIds.length !== watchedSubjectIds.length) {
         setValue('subject_ids', validIds, { shouldDirty: true, shouldValidate: true });
       }
@@ -268,7 +268,7 @@ export default function PersonasPage() {
     reset({
       name: row.name,
       category_id: row.category_id ? String(row.category_id) : '',
-      subject_ids: row.subject_id ? [String(row.subject_id)] : [],
+      subject_ids: row.subject_id ? [Number(row.subject_id)] : [],
       is_duplicate_locked: Boolean(row.is_duplicate_locked),
     });
     setDescription(row.description || '');
@@ -702,7 +702,7 @@ export default function PersonasPage() {
                     label="Sub Category"
                     value={watchedSubjectIds ?? []}
                     options={subjectOptions}
-                    onChange={(value) => setValue('subject_ids', value as string[], { shouldDirty: true, shouldValidate: true })}
+                    onChange={(value) => setValue('subject_ids', value, { shouldDirty: true, shouldValidate: true })}
                     placeholder={selectedCategory ? (subjectOptions.length ? 'Select sub categories' : 'No sub categories available') : 'Select category first'}
                     disabled={!selectedCategory || subjectOptions.length === 0}
                     emptyText="No sub categories available"

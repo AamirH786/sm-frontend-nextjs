@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { CalendarClock, MonitorPlay, Plus, ReceiptText, Sparkles, Trash2 } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import IconButton from '@/components/ui/IconButton';
 import Input from '@/components/ui/Input';
 import Modal from '@/components/ui/Modal';
 import Select from '@/components/ui/Select';
@@ -218,7 +220,15 @@ export default function OrganizationEntitlementsAdminPage() {
           No avatar entitlements assigned for this organization yet.
         </div>
       ) : (
-        <div className="grid gap-5 xl:grid-cols-2">
+        <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
+          <div className="hidden grid-cols-[1.2fr_0.9fr_0.9fr_0.9fr_0.8fr] gap-4 border-b border-slate-200 px-5 py-4 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 lg:grid">
+            <span>Avatar</span>
+            <span>Source</span>
+            <span>Purchase Link</span>
+            <span>Valid Until</span>
+            <span className="text-right">Actions</span>
+          </div>
+          <div className="divide-y divide-slate-100">
           {sortedEntitlements.map((entitlement) => {
             const avatar = avatarMap.get(entitlement.avatar_id);
             const purchase = entitlement.purchase_id
@@ -226,69 +236,49 @@ export default function OrganizationEntitlementsAdminPage() {
               : null;
 
             return (
-              <article
-                key={entitlement.id}
-                className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+              <div key={entitlement.id} className="grid gap-4 px-5 py-5 lg:grid-cols-[1.2fr_0.9fr_0.9fr_0.9fr_0.8fr] lg:items-center">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
                       {avatar?.heygen_preview_image ? (
                         <img src={avatar.heygen_preview_image} alt={avatar.avatar_name} className="h-full w-full object-cover" />
                       ) : (
                         <MonitorPlay size={22} className="text-slate-400" />
                       )}
-                    </div>
-                    <div>
-                      <h2 className="text-lg font-semibold tracking-tight text-slate-900">
-                        {avatar?.avatar_name || `Avatar #${entitlement.avatar_id}`}
-                      </h2>
-                      <p className="mt-1 text-sm text-slate-500">
-                        {avatar?.persona || 'Organization avatar entitlement'}
-                      </p>
-                    </div>
                   </div>
-                  <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${entitlement.source_type === 'purchase' ? 'bg-amber-50 text-amber-700' : 'bg-blue-50 text-blue-700'}`}>
+                  <div className="min-w-0">
+                    <h2 className="truncate text-sm font-semibold tracking-tight text-slate-900">
+                      {avatar?.avatar_name || `Avatar #${entitlement.avatar_id}`}
+                    </h2>
+                    <p className="truncate text-xs text-slate-500">
+                      {avatar?.persona || 'Organization avatar entitlement'}
+                    </p>
+                  </div>
+                </div>
+                <div>
+                  <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${entitlement.source_type === 'purchase' ? 'bg-amber-50 text-amber-700' : 'bg-blue-50 text-blue-700'}`}>
                     {entitlement.source_type}
                   </span>
                 </div>
-
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                      <ReceiptText size={14} />
-                      Purchase Link
-                    </div>
-                    <p className="mt-2 text-sm font-medium text-slate-900">
-                      {purchase ? `Purchase #${purchase.id}` : entitlement.purchase_id ? `Purchase #${entitlement.purchase_id}` : 'Manual assignment'}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                      <CalendarClock size={14} />
-                      Valid Until
-                    </div>
-                    <p className="mt-2 text-sm font-medium text-slate-900">{formatDateTime(entitlement.valid_until)}</p>
-                  </div>
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 sm:col-span-2">
-                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                      <Sparkles size={14} />
-                      Created
-                    </div>
-                    <p className="mt-2 text-sm font-medium text-slate-900">{formatDateTime(entitlement.created_at)}</p>
-                  </div>
+                <div className="text-sm text-slate-700">
+                  {purchase ? `Purchase #${purchase.id}` : entitlement.purchase_id ? `Purchase #${entitlement.purchase_id}` : 'Manual assignment'}
                 </div>
-
-                <div className="mt-5 flex justify-end">
-                  <Button variant="danger" className="gap-2" onClick={() => setEntitlementToDelete(entitlement)}>
-                    <Trash2 size={16} />
-                    Remove
-                  </Button>
+                <div className="text-sm text-slate-700">{formatDateTime(entitlement.valid_until)}</div>
+                <div className="flex items-center justify-end gap-2">
+                  <Link href={`/organizations/entitlements/${entitlement.id}?orgId=${selectedOrganizationId}`}>
+                    <IconButton label="View full" icon={<Sparkles size={16} />} />
+                  </Link>
+                  <IconButton
+                    label="Remove"
+                    icon={<Trash2 size={16} />}
+                    variant="danger"
+                    onClick={() => setEntitlementToDelete(entitlement)}
+                  />
                 </div>
-              </article>
+              </div>
             );
           })}
-        </div>
+          </div>
+        </section>
       )}
 
       <Modal

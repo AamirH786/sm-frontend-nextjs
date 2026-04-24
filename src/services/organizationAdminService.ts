@@ -106,6 +106,13 @@ const organizationAdminService = {
     return response.data ?? [];
   },
 
+  getBatch: async (orgId: number, batchId: number) => {
+    const response = await api.get<OrganizationBatchRecord & { batch_members?: OrganizationBatchMemberRecord[] }>(
+      `/organizations/${orgId}/batches/${batchId}`
+    );
+    return response.data;
+  },
+
   createBatch: async (orgId: number, payload: BatchPayload) => {
     const response = await api.post<OrganizationBatchRecord>(`/organizations/${orgId}/batches`, payload);
     return response.data;

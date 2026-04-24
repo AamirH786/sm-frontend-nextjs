@@ -1,6 +1,7 @@
 import api from '@/lib/api';
 import type {
   OrganizationCreatePayload,
+  OrganizationDetailItem,
   OrganizationItem,
   OrganizationOnboardResponse,
   OrganizationUpdatePayload,
@@ -80,6 +81,11 @@ const organizationService = {
       contact_person_phone: payload.contact_person_phone || null,
     };
     const response = await api.post<OrganizationOnboardResponse>('/organizations/onboard', apiPayload);
+    return response.data;
+  },
+
+  async getOrganization(orgId: number) {
+    const response = await api.get<OrganizationDetailItem>(`/organizations/${orgId}`);
     return response.data;
   },
 
