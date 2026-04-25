@@ -104,6 +104,7 @@ const getSettledValue = <T,>(result: PromiseSettledResult<T>): T | null =>
 
 const CREATE_AVATAR_DRAFT_KEY = 'sm_avatar_create_draft_v1';
 const AVATAR_CREATE_UI_STATE_KEY = 'sm_avatar_create_ui_state_v1';
+const CURRENT_PERSONA_SENTINEL = -1;
 const normalizeNumericIds = (values: unknown) =>
   Array.isArray(values)
     ? values
@@ -205,6 +206,14 @@ export default function CreateAvatarPage() {
   const categoryOptions = useMemo(
     () => dedupeLearningCategories(learningCategories, allSubjects, tracks, allCourses),
     [allCourses, allSubjects, learningCategories, tracks]
+  );
+  const categorySelectOptions = useMemo(
+    () =>
+      categoryOptions.map((category) => ({
+        value: Number(category.id),
+        label: getLearningCategoryLabel(category),
+      })),
+    [categoryOptions]
   );
   const categoryValue = String(formValues.category ?? '').trim();
   const selectedLearningCategory = categoryOptions.find(
@@ -347,6 +356,10 @@ export default function CreateAvatarPage() {
       tracks,
     ]
   );
+  const courseOptionsForMapping = useMemo(
+    () => (filteredCourses.length > 0 ? filteredCourses : allCourses),
+    [allCourses, filteredCourses]
+  );
   const filteredLevels = useMemo(
     () => {
       const scopedLevels = getScopedLevelsForCategory(
@@ -391,7 +404,7 @@ export default function CreateAvatarPage() {
   const personaOptions = useMemo(
     () =>
       filteredPersonas.map((persona) => ({
-        value: String(persona.id),
+        value: Number(persona.id),
         label: getPersonaOptionLabel(persona),
       })),
     [filteredPersonas]
@@ -427,13 +440,13 @@ export default function CreateAvatarPage() {
   }, [filteredLevels, formValues.level_id, setValue]);
   useEffect(() => {
     if (!formValues.course_ids?.length) return;
-    const availableCourseIds = new Set(filteredCourses.map((course) => Number(course.id)));
+    const availableCourseIds = new Set(courseOptionsForMapping.map((course) => Number(course.id)));
     const normalizedCourseIds = normalizeNumericIds(formValues.course_ids);
     const validCourseIds = normalizedCourseIds.filter((courseId) => availableCourseIds.has(courseId));
     if (validCourseIds.length !== normalizedCourseIds.length) {
       setValue('course_ids', validCourseIds);
     }
-  }, [filteredCourses, formValues.course_ids, setValue]);
+  }, [courseOptionsForMapping, formValues.course_ids, setValue]);
   useEffect(() => {
     if (!selectedLearningCategory) {
       if (formValues.persona || formValues.persona_id != null) {
@@ -1016,6 +1029,24 @@ export default function CreateAvatarPage() {
                     required
                   />
                   <Controller
+                    name="category"
+                    control={control}
+                    rules={{ required: 'Category is required' }}
+                    render={({ field }) => (
+                      <Select
+                        fieldName="category"
+                        label="Category"
+                        value={field.value ?? undefined}
+                        options={categorySelectOptions}
+                        onChange={(value) => field.onChange(value !== '' && value != null ? Number(value) : null)}
+                        placeholder="Select a category"
+                        required
+                        error={errors.category?.message}
+                        disabled={!categorySelectOptions.length}
+                      />
+                    )}
+                  />
+                  <Controller
                     name="persona_id"
                     control={control}
                     rules={{ required: 'Persona is required' }}
@@ -1023,19 +1054,24 @@ export default function CreateAvatarPage() {
                       <Select
                         fieldName="persona_id"
                         label="Persona"
-                        value={field.value != null ? String(field.value) : ''}
+                        value={field.value ?? undefined}
                         options={personaOptions}
                         onChange={(value) => {
                           const selectedPersonaOption = filteredPersonas.find(
                             (persona) => Number(persona.id) === Number(value)
                           );
-                          field.onChange(value ? Number(value) : null);
+                          if (Number(value) === CURRENT_PERSONA_SENTINEL) {
+                            field.onChange(null);
+                            return;
+                          }
+                          field.onChange(value !== '' && value != null ? Number(value) : null);
                           setValue('persona', selectedPersonaOption?.name || '', {
                             shouldValidate: true,
                             shouldDirty: true,
                           });
                         }}
-                        placeholder="Select a persona"
+                        placeholder={selectedLearningCategory ? 'Select a persona' : 'Select category first'}
+                        disabled={!selectedLearningCategory || personaOptions.length === 0}
                         required
                         error={errors.persona_id?.message}
                       />
@@ -1137,12 +1173,14 @@ export default function CreateAvatarPage() {
                           label="Mapped Courses"
                           value={field.value}
                           onChange={field.onChange}
-                          options={filteredCourses.map((course) => ({
+                          options={courseOptionsForMapping.map((course) => ({
                             value: course.id,
                             label: course.title,
                             description: [course.slug, course.difficulty_level].filter(Boolean).join(' • '),
                           }))}
-                          helperText="Selected courses are saved through avatar-course mapping API"
+                          helperText={filteredCourses.length > 0
+                                ? "Selected courses are saved through avatar-course mapping API"
+                                : "Showing all backend courses because no scoped course matched the current filters."}
                           emptyText="No courses available"
                           error={errors.course_ids?.message}
                         />
@@ -1562,5 +1600,3 @@ export default function CreateAvatarPage() {
 
   );
 }
-
-
